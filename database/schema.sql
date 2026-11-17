@@ -35,3 +35,27 @@ CREATE TABLE IF NOT EXISTS fontes_destinos (
         REFERENCES usuarios(id)
         ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS movimentacoes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    usuario_id INT NOT NULL,
+    categoria_id INT NOT NULL,
+    descricao VARCHAR(255) NOT NULL,
+    valor DECIMAL(12, 2) NOT NULL,
+    tipo ENUM('receita', 'despesa') NOT NULL,
+    data_movimentacao DATE NOT NULL,
+    criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_movimentacoes_usuario
+        FOREIGN KEY (usuario_id)
+        REFERENCES usuarios(id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_movimentacoes_categoria
+        FOREIGN KEY (categoria_id)
+        REFERENCES categorias(id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT chk_movimentacoes_valor
+        CHECK (valor > 0)
+);
