@@ -6,10 +6,12 @@ const healthRoutes = require('./health');
 const usuarioRoutes = require('./usuarios');
 const authRoutes = require('./auth');
 const categoriaRoutes = require('./categorias');
+const movimentacaoRoutes = require('./movimentacoes');
 
 router.use('/health', healthRoutes);
 router.use('/usuarios', usuarioRoutes);
 router.use('/auth', authRoutes);
 router.use('/categorias', categoriaRoutes);
+router.use('/movimentacoes', movimentacaoRoutes);
 
 module.exports = router;
