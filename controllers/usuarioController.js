@@ -1,8 +1,8 @@
-
 const bcrypt = require('bcrypt');
 
 const usuarioModel = require('../models/usuario');
-const { validarCadastro } = require('../utils/validacoes');
+const { validarCadastro, normalizarCPF } =
+  require('../utils/validacoes'); // CPF
 
 async function cadastrarUsuario(req, res) {
   try {
@@ -18,6 +18,7 @@ async function cadastrarUsuario(req, res) {
     const nome = req.body.nome.trim();
     const email = req.body.email.trim().toLowerCase();
     const senha = req.body.senha;
+    const cpf = normalizarCPF(req.body.cpf); // CPF
 
     const usuarioExistente =
       await usuarioModel.buscarPorEmail(email);
@@ -33,7 +34,8 @@ async function cadastrarUsuario(req, res) {
     const novoUsuario = await usuarioModel.criarUsuario(
       nome,
       email,
-      senhaHash
+      senhaHash,
+      cpf // CPF
     );
 
     return res.status(201).json({
@@ -46,7 +48,7 @@ async function cadastrarUsuario(req, res) {
 
     if (erro.code === 'ER_DUP_ENTRY') {
       return res.status(409).json({
-        mensagem: 'Este email ja esta cadastrado'
+        mensagem: 'Email ou CPF ja cadastrado' // CPF
       });
     }
 
