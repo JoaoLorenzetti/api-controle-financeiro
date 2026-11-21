@@ -54,7 +54,7 @@ CREATE TABLE IF NOT EXISTS movimentacoes (
     CONSTRAINT fk_movimentacoes_categoria
         FOREIGN KEY (categoria_id)
         REFERENCES categorias(id)
-        ON DELETE CASCADE,
+        ON DELETE RESTRICT,
 
     CONSTRAINT chk_movimentacoes_valor
         CHECK (valor > 0)
