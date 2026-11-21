@@ -22,6 +22,47 @@ function validarNome(nome) {
     nome.trim().length >= 2;
 }
 
+function normalizarCPF(cpf) {
+  if (typeof cpf !== 'string') {
+    return '';
+  }
+
+  return cpf.replace(/\D/g, '');
+}
+
+function validarCPF(cpf) {
+  if (typeof cpf !== 'string' ||
+      !/^[\d.\-\s]+$/.test(cpf)) {
+    return false;
+  }
+
+  const numeros = normalizarCPF(cpf);
+
+  if (!/^\d{11}$/.test(numeros)) {
+    return false;
+  }
+
+  if (/^(\d)\1{10}$/.test(numeros)) {
+    return false;
+  }
+
+  function calcularDigito(tamanho) {
+    let soma = 0;
+
+    for (let i = 0; i < tamanho; i++) {
+      soma += Number(numeros[i]) * (tamanho + 1 - i);
+    }
+
+    const resto = (soma * 10) % 11;
+    return resto === 10 ? 0 : resto;
+  }
+
+  return (
+    calcularDigito(9) === Number(numeros[9]) &&
+    calcularDigito(10) === Number(numeros[10])
+  );
+}
+
 // Valida os dados de cadastro de um usuario
 function validarCadastro(dados) {
   const erros = [];
@@ -55,5 +96,7 @@ module.exports = {
   validarEmail,
   validarSenha,
   validarNome,
-  validarCadastro
+  validarCadastro,
+  normalizarCPF,
+  validarCPF
 };
