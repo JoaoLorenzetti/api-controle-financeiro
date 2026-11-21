@@ -86,6 +86,10 @@ function validarCadastro(dados) {
     erros.push('Senha deve possuir pelo menos 8 caracteres');
   }
 
+  if (!validarCPF(dados.cpf)) {
+  erros.push('CPF invalido');
+  }
+
   return {
     valido: erros.length === 0,
     erros

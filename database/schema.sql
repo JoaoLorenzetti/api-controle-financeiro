@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS usuarios (
     nome VARCHAR(100) NOT NULL,
     email VARCHAR(150) NOT NULL UNIQUE,
     senha_hash VARCHAR(255) NOT NULL,
+    cpf CHAR(11) NOT NULL UNIQUE,
     criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -59,3 +60,4 @@ CREATE TABLE IF NOT EXISTS movimentacoes (
     CONSTRAINT chk_movimentacoes_valor
         CHECK (valor > 0)
 );
+

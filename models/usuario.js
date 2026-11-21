@@ -21,16 +21,18 @@ async function buscarPorEmail(email) {
 }
 
 // Cadastra um novo usuario
-async function criarUsuario(nome, email, senhaHash) {
+async function criarUsuario(nome, email, senhaHash, cpf) {
   const [resultado] = await pool.execute(
-    'INSERT INTO usuarios (nome, email, senha_hash) VALUES (?, ?, ?)',
-    [nome, email, senhaHash]
+    `INSERT INTO usuarios (nome, email, senha_hash, cpf)
+     VALUES (?, ?, ?, ?)`,
+    [nome, email, senhaHash, cpf]
   );
 
   return {
     id: resultado.insertId,
     nome,
-    email
+    email,
+    cpf
   };
 }
 
