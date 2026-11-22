@@ -6,7 +6,9 @@ const {
   validarEmail,
   validarSenha,
   validarNome,
-  validarCadastro
+  validarCadastro,
+  validarCPF,
+  normalizarCPF
 } = require('../utils/validacoes');
 
 test('deve aceitar um email valido', () => {
@@ -37,7 +39,8 @@ test('deve aceitar um cadastro valido', () => {
   const resultado = validarCadastro({
     nome: 'Joao',
     email: 'joao@email.com',
-    senha: '12345678'
+    senha: '12345678',
+    cpf: '529.982.247-25'
   });
 
   assert.equal(resultado.valido, true);
@@ -48,7 +51,8 @@ test('deve rejeitar um cadastro invalido', () => {
   const resultado = validarCadastro({
     nome: 'J',
     email: 'invalido',
-    senha: '123'
+    senha: '123',
+    cpf: '529.982.247-25'
   });
 
   assert.equal(resultado.valido, false);
@@ -61,3 +65,35 @@ test('deve rejeitar dados ausentes', () => {
   assert.equal(resultado.valido, false);
   assert.ok(resultado.erros.length > 0);
 });
+
+
+test('deve aceitar CPF valido', () => {
+  assert.equal(validarCPF('529.982.247-25'), true);
+});
+
+test('deve rejeitar CPF com digitos repetidos', () => {
+  assert.equal(validarCPF('111.111.111-11'), false);
+});
+
+test('deve rejeitar CPF com digito incorreto', () => {
+  assert.equal(validarCPF('529.982.247-26'), false);
+});
+
+test('deve normalizar CPF', () => {
+  assert.equal(
+    normalizarCPF('529.982.247-25'),
+    '52998224725'
+  );
+});
+
+test('deve rejeitar cadastro sem CPF', () => {
+  const resultado = validarCadastro({
+    nome: 'Joao',
+    email: 'joao@email.com',
+    senha: '12345678'
+  });
+
+  assert.equal(resultado.valido, false);
+  assert.ok(resultado.erros.includes('CPF invalido'));
+});
+
