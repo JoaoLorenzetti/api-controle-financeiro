@@ -1,17 +1,7 @@
-
-const express = require('express');
-const router = express.Router();
-
-const healthRoutes = require('./health');
-const usuarioRoutes = require('./usuarios');
-const authRoutes = require('./auth');
-const categoriaRoutes = require('./categorias');
-const movimentacaoRoutes = require('./movimentacoes');
-
-router.use('/health', healthRoutes);
-router.use('/usuarios', usuarioRoutes);
-router.use('/auth', authRoutes);
-router.use('/categorias', categoriaRoutes);
-router.use('/movimentacoes', movimentacaoRoutes);
-
-module.exports = router;
+const router=require('express').Router();
+router.use('/health',require('./health'));
+router.use('/auth',require('./auth'));
+router.use('/usuarios',require('./usuarios'));
+router.use('/categorias',require('./categorias'));
+// Fontes e lancamentos serao registrados nos commits seguintes.
+module.exports=router;
