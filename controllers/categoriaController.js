@@ -1,67 +1,10 @@
-
-const categoriaModel = require('../models/categoria');
- 
-async function criarCategoria(req, res) {
-  try {
-    const { nome, tipo } = req.body || {};
- 
-    if (
-      typeof nome !== 'string' ||
-      nome.trim().length < 2 ||
-      nome.trim().length > 100
-    ) {
-      return res.status(400).json({
-        mensagem: 'Nome deve ter entre 2 e 100 caracteres'
-      });
-    }
- 
-    if (tipo !== 'receita' && tipo !== 'despesa') {
-      return res.status(400).json({
-        mensagem: 'Tipo deve ser receita ou despesa'
-      });
-    }
- 
-    const categoria = await categoriaModel.criarCategoria(
-      req.usuario.id,
-      nome.trim(),
-      tipo
-    );
- 
-    return res.status(201).json({
-      mensagem: 'Categoria cadastrada com sucesso',
-      categoria
-    });
- 
-  } catch (erro) {
-    console.error('Erro ao cadastrar categoria:', erro);
- 
-    return res.status(500).json({
-      mensagem: 'Erro interno ao cadastrar categoria'
-    });
-  }
-}
- 
-async function listarCategorias(req, res) {
-  try {
-    const categorias = await categoriaModel.listarPorUsuario(
-      req.usuario.id
-    );
- 
-    return res.status(200).json({
-      categorias
-    });
- 
-  } catch (erro) {
-    console.error('Erro ao listar categorias:', erro);
- 
-    return res.status(500).json({
-      mensagem: 'Erro interno ao listar categorias'
-    });
-  }
-}
- 
-module.exports = {
-  criarCategoria,
-  listarCategorias
-};
- 
+const m = require('../models/categoria');
+const tipoOk = t => t === 'entrada' || t === 'saida';
+const idOk = x => /^\d+$/.test(String(x)) && Number(x) > 0;
+const dadosOk = d => d && typeof d.nome === 'string' && d.nome.trim().length >= 2 && d.nome.trim().length <= 60 && tipoOk(d.tipo);
+function erro(res, e) { if (e.code === 'ER_DUP_ENTRY') return res.status(409).json({ erro: 'Categoria ja cadastrada.' }); if (e.code === 'ER_ROW_IS_REFERENCED_2') return res.status(409).json({ erro: 'Categoria possui lancamentos vinculados.' }); console.error(e); return res.status(500).json({ erro: 'Erro interno do servidor.' }); }
+async function listarCategorias(req, res) { try { const tipo = req.query.tipo; if (tipo !== undefined && !tipoOk(tipo)) return res.status(400).json({ erro: 'Tipo invalido.' }); return res.json({ categorias: await m.listarPorUsuario(req.auth.id, tipo) }); } catch (e) { return erro(res, e); } }
+async function criarCategoria(req, res) { if (!dadosOk(req.body)) return res.status(400).json({ erro: 'Dados invalidos.', campos: { categoria: 'Informe nome e tipo entrada ou saida.' } }); try { return res.status(201).json(await m.criar(req.auth.id, req.body.nome.trim(), req.body.tipo)); } catch (e) { return erro(res, e); } }
+async function atualizarCategoria(req, res) { if (!idOk(req.params.id) || !dadosOk(req.body)) return res.status(400).json({ erro: 'Dados invalidos.' }); try { const uid = req.auth.id, id = Number(req.params.id); if (!await m.buscar(uid, id)) return res.status(404).json({ erro: 'Categoria nao encontrada.' }); await m.atualizar(uid, id, req.body.nome.trim(), req.body.tipo); return res.json(await m.buscar(uid, id)); } catch (e) { return erro(res, e); } }
+async function excluirCategoria(req, res) { if (!idOk(req.params.id)) return res.status(400).json({ erro: 'ID invalido.' }); try { const n = await m.excluir(req.auth.id, Number(req.params.id)); return n ? res.status(204).end() : res.status(404).json({ erro: 'Categoria nao encontrada.' }); } catch (e) { return erro(res, e); } }
+module.exports = { listarCategorias, criarCategoria, atualizarCategoria, excluirCategoria };

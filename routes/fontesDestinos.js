@@ -1,0 +1,1 @@
+const router = require('express').Router(); const auth = require('../middlewares/authMiddleware'); const c = require('../controllers/fonteDestinoController'); router.use(auth); router.get('/', c.listar); router.post('/', c.criar); router.put('/:id', c.atualizar); router.delete('/:id', c.excluir); module.exports = router;
