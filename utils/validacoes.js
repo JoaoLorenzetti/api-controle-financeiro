@@ -1,106 +1,21 @@
-
-// Verifica se um email possui formato valido
-function validarEmail(email) {
-  if (typeof email !== 'string') {
-    return false;
-  }
-
-  const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-  return regex.test(email);
+function validarEmail(x){return typeof x==='string' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(x);}
+function validarSenha(x){return typeof x==='string' && x.length>=8 && /[A-Za-z]/.test(x) && /\d/.test(x);}
+function validarNome(x){return typeof x==='string' && x.trim().length>=2;}
+function normalizarCPF(x){return typeof x==='string'?x.replace(/\D/g,''):'';}
+function validarCPF(x){
+ if(typeof x!=='string'|| !/^[\d.\-\s]+$/.test(x))return false;
+ const d=normalizarCPF(x);
+ if(!/^\d{11}$/.test(d)||/^(\d)\1{10}$/.test(d))return false;
+ const digito=n=>{let soma=0;for(let i=0;i<n;i++)soma+=Number(d[i])*(n+1-i);const r=soma*10%11;return r===10?0:r;};
+ return digito(9)===Number(d[9])&&digito(10)===Number(d[10]);
 }
-
-// Verifica se a senha possui pelo menos 8 caracteres
-function validarSenha(senha) {
-  return typeof senha === 'string' &&
-    senha.length >= 8;
+function validarCadastro(d){
+ if(!d||typeof d!=='object'||Array.isArray(d))return {valido:false,erros:['Dados de cadastro invalidos']};
+ const erros=[];
+ if(!validarNome(d.nome))erros.push('Nome deve possuir pelo menos 2 caracteres');
+ if(!validarEmail(d.email))erros.push('Email invalido');
+ if(!validarSenha(d.senha))erros.push('Senha deve possuir 8 caracteres, letras e numeros');
+ if(!validarCPF(d.cpf))erros.push('CPF invalido');
+ return {valido:erros.length===0,erros};
 }
-
-// Verifica se o nome foi preenchido
-function validarNome(nome) {
-  return typeof nome === 'string' &&
-    nome.trim().length >= 2;
-}
-
-function normalizarCPF(cpf) {
-  if (typeof cpf !== 'string') {
-    return '';
-  }
-
-  return cpf.replace(/\D/g, '');
-}
-
-function validarCPF(cpf) {
-  if (typeof cpf !== 'string' ||
-      !/^[\d.\-\s]+$/.test(cpf)) {
-    return false;
-  }
-
-  const numeros = normalizarCPF(cpf);
-
-  if (!/^\d{11}$/.test(numeros)) {
-    return false;
-  }
-
-  if (/^(\d)\1{10}$/.test(numeros)) {
-    return false;
-  }
-
-  function calcularDigito(tamanho) {
-    let soma = 0;
-
-    for (let i = 0; i < tamanho; i++) {
-      soma += Number(numeros[i]) * (tamanho + 1 - i);
-    }
-
-    const resto = (soma * 10) % 11;
-    return resto === 10 ? 0 : resto;
-  }
-
-  return (
-    calcularDigito(9) === Number(numeros[9]) &&
-    calcularDigito(10) === Number(numeros[10])
-  );
-}
-
-// Valida os dados de cadastro de um usuario
-function validarCadastro(dados) {
-  const erros = [];
-
-  if (!dados || typeof dados !== 'object' || Array.isArray(dados)) {
-    return {
-      valido: false,
-      erros: ['Dados de cadastro invalidos']
-    };
-  }
-
-  if (!validarNome(dados.nome)) {
-    erros.push('Nome deve possuir pelo menos 2 caracteres');
-  }
-
-  if (!validarEmail(dados.email)) {
-    erros.push('Email invalido');
-  }
-
-  if (!validarSenha(dados.senha)) {
-    erros.push('Senha deve possuir pelo menos 8 caracteres');
-  }
-
-  if (!validarCPF(dados.cpf)) {
-  erros.push('CPF invalido');
-  }
-
-  return {
-    valido: erros.length === 0,
-    erros
-  };
-}
-
-module.exports = {
-  validarEmail,
-  validarSenha,
-  validarNome,
-  validarCadastro,
-  normalizarCPF,
-  validarCPF
-};
+module.exports={validarEmail,validarSenha,validarNome,validarCadastro,normalizarCPF,validarCPF};
