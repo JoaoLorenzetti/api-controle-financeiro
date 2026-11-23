@@ -1,0 +1,1 @@
+const router=require('express').Router();const auth=require('../middlewares/authMiddleware');const c=require('../controllers/lancamentoController');router.use(auth);router.get('/',c.listar);router.get('/:id',c.detalhar);router.post('/',c.criar);router.put('/:id',c.atualizar);router.delete('/:id',c.excluir);module.exports=router;
