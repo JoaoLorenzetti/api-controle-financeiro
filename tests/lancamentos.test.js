@@ -1,0 +1,1 @@
+const test=require('node:test');const assert=require('node:assert/strict');const {dividirEmParcelas}=require('../utils/parcelas');test('parcelamento preserva soma em centavos',()=>{const valores=dividirEmParcelas(199.99,7);assert.equal(Math.round(valores.reduce((a,b)=>a+b,0)*100),19999);});
