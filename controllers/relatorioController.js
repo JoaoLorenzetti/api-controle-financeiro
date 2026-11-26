@@ -7,10 +7,7 @@ function dataValida(valor) {
 }
 
 function periodo(query) {
-  const hoje = new Date();
-  const ano = hoje.getFullYear(), mes = hoje.getMonth();
-  const inicio = query.inicio || `${ano}-${String(mes + 1).padStart(2, '0')}-01`;
-  const fim = query.fim || `${ano}-${String(mes + 1).padStart(2, '0')}-${String(new Date(ano, mes + 1, 0).getDate()).padStart(2, '0')}`;
+  const { inicio, fim } = query;
   if (!dataValida(inicio) || !dataValida(fim) || inicio > fim) return null;
   return { inicio, fim };
 }
@@ -41,10 +38,19 @@ async function categorias(req, res) {
       relatorio.porCategorias(req.auth.id, anterior.inicio, anterior.fim)
     ]);
     const mapa = new Map(passado.map(r => [r.categoriaId, r.total]));
-    return res.json({ periodo: p, resumo: totais(atual),
-      periodoAnterior: anterior, resumoAnterior: totais(passado),
-      categorias: atual.map(r => ({ ...r, totalAnterior: mapa.get(r.categoriaId) || 0,
-        variacao: Math.round((r.total - (mapa.get(r.categoriaId) || 0)) * 100) / 100 })) });
+    const resumo = totais(atual);
+    const arred = n => Math.round(n * 100) / 100;
+    const categorias = atual.map(r => {
+      const anterior = mapa.get(r.categoriaId) || 0;
+      const base = r.tipo === 'entrada' ? resumo.entradas : resumo.saidas;
+      return {...r, totalAnterior: anterior, anterior,
+        percentual: base ? arred(r.total / base * 100) : 0,
+        variacao: anterior ? arred((r.total - anterior) / anterior * 100) : (r.total ? null : 0),
+        variacaoValor: arred(r.total - anterior)};
+    });
+    return res.json({periodo:p,resumo,periodoAnterior:anterior,resumoAnterior:totais(passado),categorias,
+      entradas:{total:resumo.entradas,categorias:categorias.filter(r=>r.tipo==='entrada')},
+      saidas:{total:resumo.saidas,categorias:categorias.filter(r=>r.tipo==='saida')}});
   } catch (e) { console.error(e); return res.status(500).json({ erro: 'Erro interno do servidor.' }); }
 }
 
